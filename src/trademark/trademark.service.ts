@@ -28,7 +28,8 @@ export class TrademarkService implements OnModuleInit {
     this.kafkaClient.subscribeToResponseOf('trademark-results');
     await this.connectWithRetry();
   }
-
+  
+  //리더 선출 및 브로커 할당 등 기타 문제로 인한 연결 에러 발생시 연결 재시도
   private async connectWithRetry(retries = 5, interval = 5000) {
     for (let i = 0; i < retries; i++) {
       try {
@@ -45,7 +46,7 @@ export class TrademarkService implements OnModuleInit {
       }
     }
   }
-
+  //출원 상표 이미지 저장 및 Flask 서버로 입력값 전달 
   async checkNameAndUploadImage(name: string, product_name: string, file: Express.Multer.File, uid: string) {
     this.logger.log(`Checking trademark name and uploading image: ${name}`);
     try {
@@ -67,11 +68,13 @@ export class TrademarkService implements OnModuleInit {
     }
   }
 
+  //입력값에 대한 처리 결과 수신
   @MessagePattern('trademark-results')
   async handleTrademarkResults(@Payload() message: TrademarkMessage & { results: TrademarkResults }) {
     const { uid, name, product_name, results, imageUrl } = message;
     this.logger.log(`Received trademark results for ${name} (UID: ${uid})`);
-
+    
+    //결과값 mongoDB 저장
     try {
       const trademark = new this.trademarkModel({
         uid,
@@ -100,6 +103,7 @@ export class TrademarkService implements OnModuleInit {
     return this.resultsMap.get(uid).asObservable();
   }
 
+  //현재까지의 결과 내역 일체 조회
   async getTrademarksByUID(uid: string): Promise<Trademark[] | { message: string }> {
     try {
       const results = await this.trademarkModel.find({ uid }).exec();

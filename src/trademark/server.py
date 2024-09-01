@@ -117,6 +117,7 @@ def process_trademark():
         logger.error(f"Error processing trademark {name}: {str(e)}")
         return jsonify({"error": f"상표 처리 중 오류가 발생했습니다: {str(e)}"}), 500
 
+#Kafka로 부터 메시지 수신
 def consume_messages():
     logger.info("Starting Kafka consumer...")
     try:
@@ -138,6 +139,7 @@ def consume_messages():
     except Exception as e:
         logger.error(f"Error in Kafka consumer: {str(e)}")
 
+#출원 대상 상품 - 출원 상표 간의 견련성 검사, (상표법 제 33조 1항, 상표의 '식별력' 판단을 위함)
 def calculate_similarity(model, trademark_name, product_name):
     refined_name = trademark_name.replace(product_name, "").strip()
     vector1 = model.get_sentence_vector(refined_name)
@@ -149,6 +151,7 @@ def calculate_similarity(model, trademark_name, product_name):
         
     return similarity
 
+#이미 등록되어 있는 '동일'한 상표가 있는지 검사
 def queryForFindSameNameV2(name):
     es = connectToElastic()
     try:
@@ -177,6 +180,7 @@ def queryForFindSameNameV2(name):
     except Exception as e:
         return {"error": f"error for FindNameV2: {str(e)}"}
 
+#이미 등록되어 있는 '유사'한 상표가 있는지 검사
 def queryForFindSimilarName(name):
     es = connectToElastic()
     try:
@@ -210,8 +214,11 @@ def queryForFindSimilarName(name):
     except Exception as e:
         return {"error": f"Error in queryForFindSimilarName: {str(e)}"}
 
+
+#이미 등록되어 있는 '발음이 유사'한 상표가 있는지 검사
 def queryForFindSimilarPronun(name):
     es = connectToElastic()
+    #국제 표준 발음기호로 변환
     try:
         segments = re.split('([가-힣]+)', name)
         ipa_name = ""
@@ -247,6 +254,7 @@ def queryForFindSimilarPronun(name):
                     }
                 }
             }
+            #국내 100대 기업의 경우 유사 범위를 좀 더 넓게 취급. 유사도 점수가 상대적으로 적더라도 사용자에게 결과 출력
             large_company_check = es.search(index='big_company', body=company_check_query)
             is_large_company = large_company_check['hits']['total']['value'] > 0
 
@@ -271,6 +279,7 @@ def tokenize(name):
     except Exception as e:
         return {"error": f"Error in tokenization: {str(e)}"}
 
+#상표의 사회 통념상 적합성 판단
 def queryForCheckElastic(name):
     es = connectToElastic()
     try:
@@ -304,6 +313,7 @@ def queryForCheckElastic(name):
                     }
             }
 
+            #해당 감정분석 모델을 통해 부정성 판단
             resp = es.transport.perform_request('POST', "/_ml/trained_models/matthewburke__korean_sentiment/deployment/_infer" ,body=json.dumps(req), headers= header)
 
             if resp.body["top_classes"][0]["class_name"] == "LABEL_0" and resp.body["top_classes"][0]["class_score"] > 0.8:

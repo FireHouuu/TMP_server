@@ -1,5 +1,3 @@
-// src/common/common.module.ts
-
 import { Module } from '@nestjs/common';
 import { S3Service } from './s3.service';
 

@@ -10,6 +10,7 @@ import { Express } from 'express';
 export class TrademarkController {
   constructor(private readonly trademarkService: TrademarkService) {}
 
+  //사용자 입력 (이름, 상품이름, 출원상표 이미지)
   @Post('process_trademark')
   @UseGuards(FirebaseAuthGuard)
   @UseInterceptors(FileInterceptor('image'))
@@ -22,6 +23,7 @@ export class TrademarkController {
     return this.trademarkService.checkNameAndUploadImage(name, product_name, file, uid);
   }
 
+  //입력 결과 대기 (SSE)
   @Sse('results')
   @UseGuards(FirebaseAuthGuard)
   sendResults(@Req() req): Observable<MessageEvent> {
@@ -31,6 +33,7 @@ export class TrademarkController {
     );
   }
 
+  //결과 내역 조회
   @Get('my_trademarks')
   @UseGuards(FirebaseAuthGuard)
   async getMyTrademarks(@Req() req) {

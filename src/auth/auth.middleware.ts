@@ -12,7 +12,7 @@ export class FirebaseAuthMiddleware implements NestMiddleware {
         const decodedToken = await admin.auth().verifyIdToken(token);
         req['user'] = decodedToken;
       } catch (error) {
-        console.error('Error verifying Firebase ID token:', error);
+        //console.error('Error verifying Firebase ID token:', error);
       }
     } else {
     }

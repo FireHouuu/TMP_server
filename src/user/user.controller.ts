@@ -1,4 +1,3 @@
-//user.controller.ts
 import { Controller, Post, Get, Body, UseGuards, Req } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './user.dto';
@@ -7,11 +6,6 @@ import { FirebaseAuthGuard } from '../auth/firebase-auth.guard';
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-
-  @Get('public')
-  getPublicData() {
-    return { message: 'This is a public endpoint' };
-  }
 
   @Post('signup')
   @UseGuards(FirebaseAuthGuard)

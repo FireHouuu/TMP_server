@@ -12,12 +12,12 @@ export interface TrademarkResults {
   };
   find_similar_name: {
     result: boolean;
-    data?: Array<[string, string, string | null]>; // [similar_title, application_date, image_url]
+    data?: Array<[string, string, string | null]>; 
     msg?: string;
   };
   find_similar_pronun: {
     result: boolean;
-    data?: Array<[string, number, string, string | null]>; // [title, score, application_date, image_url]
+    data?: Array<[string, number, string, string | null]>;
     msg?: string;
   };
   tokenize: {
