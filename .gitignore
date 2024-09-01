@@ -1,0 +1,29 @@
+# Node modules
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Environment variables
+.env
+
+# Firebase service account key
+test2-dd226-firebase-adminsdk-rm5pu-19017bc224.json
+src/firebase-secret.json
+
+# Build output
+dist/
+build/
+
+# IDE directories
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Dependency directories
+node_modules/
